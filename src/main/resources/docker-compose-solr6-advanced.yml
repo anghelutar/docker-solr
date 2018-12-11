@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  alfresco:
+    image: hub.xenit.eu/alfresco-enterprise:5.2
+    restart: unless-stopped
+    ports:
+    - 8080
+    environment:
+    - SOLR_HOST=solr
+    - SOLR_PORT_SSL=8444
+
+  solr:
+    image: ${DOCKER_IMAGE}
+    restart: unless-stopped
+    ports:
+    - 8444
+    hostname: solr
+    environment:
+    - ALFRESCO_HOST=alfresco
+    - JETTY_PORT_SSL=8444
+    - ALFRESCO_SOLR_SUGGESTER_ENABLED=false
+    - ALFRESCO_SOLR_FACETABLE_CATEGORIES_ENABLED=true
+    - GLOBAL_WORKSPACE_alfresco.batch.count=10000
+    - GLOBAL_ARCHIVE_alfresco.batch.count=2000
+    - GLOBAL_alfresco.corePoolSize=16
+
+  jodconverter:
+    image: hub.xenit.eu/jodconverter-ws:build-12
+    restart: unless-stopped
+
+  postgresql:
+    image: hub.xenit.eu/postgres:0.0.1-24
+    restart: unless-stopped
+    environment:
+    - POSTGRES_USER=alfresco
+    - POSTGRES_PASSWORD=admin
+    - POSTGRES_DB=alfresco
+    restart: unless-stopped

@@ -1,0 +1,153 @@
+import groovy.json.JsonSlurper
+import java.io.*
+import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.EncoderRegistry
+import static groovyx.net.http.Method.*
+import static groovyx.net.http.ContentType.*
+
+buildscript {
+    repositories {
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath('eu.xenit.gradle:xenit-gradle-plugins:3.3.1')
+        classpath ('org.codehaus.groovy.modules.http-builder:http-builder:0.7.2')
+    }
+}
+
+
+def getVaultToken() {
+    String pathToken = System.getProperty("user.home") + "/.vault-token"
+    if(new File(pathToken).exists()) {
+        String token = new File(pathToken).text
+        return token
+    } else {
+        throw new GradleException('Vault token should be set in ~/.vault-token')
+    }
+}
+
+def getApproleSecretId(){
+    def http = new HTTPBuilder('https://vault.local.xenit.eu:8200/')
+
+    http.ignoreSSLIssues()
+    def json = '';
+    def request = http.request(POST, TEXT ) {
+        requestContentType = JSON;
+        uri.path = 'v1/auth/approle/role/jenkins/secret-id'
+        headers.'X-Vault-Token' = getVaultToken()
+        headers.'Accept' = 'application/json'
+        headers.'Host' = 'vault.local.xenit.eu'
+
+        response.success = { resp, reader ->;
+            String jsonResponse = (reader.readLines().join() as String)
+            json = new JsonSlurper().parseText(jsonResponse)
+        }
+        response.failure = { resp, reader ->;
+            throw new GradleException("Could not connect to vault: ${resp.getStatus()}, ${resp.getStatusLine()}")
+        }
+    }
+
+    def secret_id=json.data.secret_id
+    return secret_id
+}
+
+def calcTags (version) {
+    return [
+            "${version.major}.${version.minor}.${version.rev}".toString(),
+            "${version.major}.${version.minor}".toString()
+    ];
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'xenit-dockerbuild'
+
+    if(new File("${project.projectDir}/overload.gradle").exists())
+        apply from: "${project.projectDir}/overload.gradle"
+
+    def workingDir = "$project.buildDir/dockerbuild"
+
+    task copyDockerfile(type: Copy) {
+        from("$project.parent.projectDir/src/main/resources/dockerfiles/") {
+            include "Dockerfile.${project.solr.flavor}"
+            rename "Dockerfile.${project.solr.flavor}", 'Dockerfile'
+        }
+        into workingDir
+    }
+    task copyGlobalResources(type: Copy) {
+        from "$project.parent.projectDir/src/main/resources/global"
+        into workingDir
+    }
+    task copyLocalResources(type: Copy) {
+        from "$project.projectDir/local"
+        from "$project.projectDir/../local"
+        into workingDir
+    }
+
+
+    buildDockerImage.dependsOn(copyGlobalResources)
+    buildDockerImage.dependsOn(copyDockerfile)
+    buildDockerImage.dependsOn(copyLocalResources)
+
+    dockerFile {
+        dockerFile = file("$workingDir/Dockerfile")
+        dockerBuild {
+            repository = "hub.xenit.eu/alfresco-"+"${project.solr.flavor}"
+            tags = calcTags(project.solr.version)
+        }
+    }
+
+    buildDockerImage {
+        buildArgs = [
+                'SOLR_VERSION_MAJOR': "${project.solr.version.major}",
+                'SOLR_VERSION_MINOR': "${project.solr.version.minor}",
+                'SOLR_VERSION_REV': "${project.solr.version.rev}",
+                'SOLR_FLAVOR': "${project.solr.flavor}",
+                'SECRET_ID': getApproleSecretId()
+        ]
+
+        if (project.hasProperty('extraBuildArgs'))
+            buildArgs << project.extraBuildArgs
+
+        doFirst {
+            println buildArgs
+        }
+    }
+
+    dockerCompose {
+        def composePath = "${project.parent.projectDir}/src/main/resources/docker-compose-${project.solr.flavor}.yml"
+        def composePathSharded = "${project.parent.projectDir}/src/main/resources/docker-compose-${project.solr.flavor}-2-solr-3-shards.yml"
+        useComposeFiles = [composePath]
+        if (project.hasProperty('testsSharded') && project.testsSharded) {
+            useComposeFiles = [composePath, composePathSharded]
+        }
+    }
+
+    if (project.hasProperty('tests') && project.tests) {
+        sourceSets {
+            test {
+                java {
+                    srcDirs = ["${project.parent.projectDir}/src/test"]
+                }
+            }
+        }
+        dependencies {
+            testCompile group: 'io.rest-assured', name: 'rest-assured', version: '3.0.1'
+            testCompile group: 'io.rest-assured', name: 'json-path', version: '3.0.1'
+            testCompile group: 'io.rest-assured', name: 'rest-assured-common', version: '3.0.1'
+            testCompile group: 'junit', name: 'junit', version: '4.11'
+        }
+        test {
+            dependsOn composeUp
+
+            doFirst {
+                dockerCompose.exposeAsSystemProperties(test)
+                systemProperty("flavor", "${project.solr.flavor}")
+            }
+
+            finalizedBy(composeDown)
+        }
+    }
+
+}

@@ -1,0 +1,12 @@
+ext {
+    solr = [
+            version: [
+                    major: 5,
+                    minor: 1,
+                    rev: "4.1"
+            ],
+            flavor: 'solr4'
+    ]
+    tests = true
+    testsSharded = true
+}

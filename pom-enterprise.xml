@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>eu.xenit</groupId>
+    <artifactId>docker-solr</artifactId>
+    <version>1.0</version>
+    <name>Docker solr</name>
+    <description>Docker solr</description>
+    <packaging>pom</packaging>
+
+    <repositories>
+	<repository>
+            <id>artifactory-alfresco-enterprise</id>
+            <url>https://artifactory.xenit.eu/artifactory/alfresco-enterprise</url>
+	</repository>
+    </repositories>
+
+
+    <dependencies>
+<!-- run mvn dependency:list -U to download artifacts to artifactory -->
+<!--<dependency>
+  <groupId>org.alfresco</groupId>
+  <artifactId>alfresco-enterprise</artifactId>
+  <version>5.0.4</version>
+  <type>war</type>
+</dependency>
+
+<dependency>
+  <groupId>org.alfresco</groupId>
+  <artifactId>share</artifactId>
+  <version>5.0.4</version>
+  <type>war</type>
+</dependency>  -->
+
+<!-- <dependency>
+   <groupId>org.alfresco</groupId>
+          <artifactId>alfresco-enterprise</artifactId>
+          <version>5.1.1</version>
+          <type>war</type>
+        </dependency>
+        
+        <dependency>
+          <groupId>org.alfresco</groupId>
+          <artifactId>share</artifactId>
+          <version>5.1.1</version>
+          <type>war</type>
+        </dependency>  -->
+
+<!--        <dependency>
+          <groupId>org.alfresco</groupId>
+          <artifactId>alfresco-enterprise</artifactId>
+          <version>5.1.3</version>
+          <type>war</type>
+        </dependency>
+        
+        <dependency>
+          <groupId>org.alfresco</groupId>
+          <artifactId>share</artifactId>
+          <version>5.1.3</version>
+          <type>war</type>
+        </dependency> -->
+
+
+<!--	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>alfresco-enterprise</artifactId>
+	  <version>5.2.0</version>
+	  <type>war</type>
+	</dependency>
+	
+	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>share</artifactId>
+	  <version>5.2.0</version>
+	  <type>war</type>
+	</dependency>	-->
+
+<!--	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>alfresco-enterprise</artifactId>
+	  <version>5.2.2</version>
+	  <type>war</type>
+	</dependency>
+
+	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>share</artifactId>
+	  <version>5.2.2</version>
+	  <type>war</type>
+	</dependency>-->
+
+	<!--<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>alfresco-solr4-distribution</artifactId>
+	  <version>5.1.4.1</version>
+	  <type>zip</type>
+	</dependency>-->
+
+<!--	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>alfresco-search-services</artifactId>
+	  <version>1.1.1</version>
+	  <type>zip</type>
+	</dependency>-->
+<!--	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>alfresco-solr</artifactId>
+	  <version>4.2.8</version>
+	  <type>zip</type>
+	  </dependency>-->
+          <dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>share</artifactId>
+	  <version>5.2.4</version>
+	  <classifier>classes</classifier>
+	  <type>jar</type>
+	  </dependency>
+	  
+
+    </dependencies>
+
+</project>

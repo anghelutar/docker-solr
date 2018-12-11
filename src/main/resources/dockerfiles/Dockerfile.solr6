@@ -1,0 +1,40 @@
+FROM   hub.xenit.eu/java:jdk-8-ubuntu-16.04
+
+ARG SOLR_VERSION_MAJOR
+ARG SOLR_VERSION_MINOR
+ARG SOLR_VERSION_REV
+ARG SOLR_FLAVOR
+ARG SECRET_ID
+
+ENV ALFRESCO_SEARCH_SERVICES_VERSION=${SOLR_VERSION_MAJOR}.${SOLR_VERSION_MINOR}.${SOLR_VERSION_REV}
+ENV SOLR_INSTALL_HOME=/opt/alfresco-search-services
+
+# SOLR installation & configuration
+USER root
+RUN     apt-get update && \
+        apt-get install -y unzip lsof less vim curl jq && \
+        # Get artifactory credentials
+        APPROLE_ID="0fbdaa0a-86db-d637-f8f5-19a41106fc20" && \
+        token=$(curl -k --request POST --data "{\"role_id\":\"$APPROLE_ID\",\"secret_id\":\"$SECRET_ID\"}" https://vault.local.xenit.eu:8200/v1/auth/approle/login | jq -r .auth.client_token) && \
+        ARTIFACTORY_LOGIN=$(curl -k -H "X-Vault-Token: $token" -X GET https://vault.local.xenit.eu:8200/v1/secret/Applications/artifactory.xenit.eu/readall | jq -r '"\(.data.username):\(.data.password)"') && \
+	curl -o /tmp/alfresco-search-services-${ALFRESCO_SEARCH_SERVICES_VERSION}.zip https://${ARTIFACTORY_LOGIN}@artifactory.xenit.eu/artifactory/simple/alfresco-community-cache/org/alfresco/alfresco-search-services/${ALFRESCO_SEARCH_SERVICES_VERSION}/alfresco-search-services-${ALFRESCO_SEARCH_SERVICES_VERSION}.zip && \
+	unzip /tmp/alfresco-search-services-${ALFRESCO_SEARCH_SERVICES_VERSION}.zip -d /opt && \
+	rm /tmp/alfresco-search-services-${ALFRESCO_SEARCH_SERVICES_VERSION}.zip && \
+	groupadd solr -g 990 && \
+	useradd solr -u 990 -g 990 -d /opt/alfresco-search-services -s /bin/bash &&\
+ 	chown -hR solr /opt/alfresco-search-services
+USER solr
+COPY init.sh /opt/alfresco-search-services
+
+# add the keystore
+ADD keystore /opt/alfresco-search-services/solrhome/keystore
+
+VOLUME ${CATALINA_HOME}/temp ${CATALINA_HOME}/logs
+
+WORKDIR /opt/alfresco-search-services
+
+# we don't know upfront on which port will jetty run (with or without ssl) so we cannot define a healthcheck
+#HEALTHCHECK --interval=10s --timeout=3s --retries=3 --start-period=20s CMD curl -f http://localhost:8080/solr || exit 1
+
+ENTRYPOINT ["/opt/alfresco-search-services/init.sh"]
+CMD 	["app:start"]

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>eu.xenit</groupId>
+    <artifactId>docker-alfresco</artifactId>
+    <version>1.0</version>
+    <name>Docker alfresco</name>
+    <description>Docker alfresco</description>
+    <packaging>pom</packaging>
+
+    <repositories>
+        <repository>
+            <id>artifactory-alfresco-community</id>
+            <url>https://artifactory.xenit.eu/artifactory/alfresco-community</url>
+        </repository>
+    </repositories>
+
+
+    <dependencies>
+      <!-- run mvn dependency:list -U to download artifacts to artifactory -->
+      <!--	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>content-services-community</artifactId>
+	  <version>6.0.0-ea</version>
+	  <type>war</type>
+	</dependency>
+
+	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>api-explorer</artifactId>
+	  <version>6.0.0-ea</version>
+	  <type>war</type>
+	</dependency>	
+	
+	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>share</artifactId>
+	  <version>5.2.f</version>
+	  <type>war</type>
+	</dependency>	-->
+
+<!--	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>alfresco-platform-enterprise</artifactId>
+	  <version>5.2.2</version>
+	  <type>war</type>
+	</dependency>
+
+	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>share</artifactId>
+	  <version>5.2.2</version>
+	  <type>war</type>
+	</dependency>	-->
+
+<!--	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>alfresco-search-services</artifactId>
+	  <version>1.0-EA</version>
+	  <type>zip</type>
+	</dependency>-->
+
+<!--	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>alfresco-search-services</artifactId>
+	  <version>1.0.0</version>
+	  <type>zip</type>
+	  </dependency>-->
+
+<!--	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>alfresco-search-services</artifactId>
+	  <version>1.1.1</version>
+	  <type>zip</type>
+	</dependency>-->
+
+	<dependency>
+	  <groupId>org.alfresco</groupId>
+	  <artifactId>alfresco-search-services</artifactId>
+	  <version>1.2.0</version>
+	  <type>zip</type>
+	</dependency>
+
+
+	
+    </dependencies>
+
+</project>
